@@ -1,4 +1,4 @@
-# Step-by-step Guide of Booting linux on a Rocket-chip SoC on Nexys4ddr
+# Step-by-step Guide of Booting linux on a Rocket-chip SoC on KC705
 
 ### STEPS OVERVIEW
 
@@ -15,7 +15,7 @@
 
 ## I. Big Map
 
-The main idea of this guide is to provide a step-by-step tutorial of building a **RISC-V** SoC, especially for those who are interested in **Rocket-chip** and want to test it on a real board instead of simulators. At the end of this tutorial, you will be able to boot a Linux on  **Nexys4ddr** FPGA board and run your own riscv programs on it.
+The main idea of this guide is to provide a step-by-step tutorial of building a **RISC-V** SoC, especially for those who are interested in **Rocket-chip** and want to test it on a real board instead of simulators. At the end of this tutorial, you will be able to boot a Linux on  **KC705** FPGA board and run your own riscv programs on it.
 
 A general background is provided by the following links: [RISC-V](https://riscv.org) and [Rocket-Chip](https://github.com/freechipsproject/rocket-chip).
 
@@ -280,7 +280,7 @@ Once you have compile your own linux kernel, vmlinux. Then it comes to the build
 
 - format your sdcard with fat32 **NOTICE: format the SD card with MBR instead of GUID**
 - drag your **boot.elf** into the sdcard
-- eject the sd and insert it into the SDslot on Nexys4ddr board
+- eject the sd and insert it into the SDslot on KC705 board
 - make sure your KC705 is in **BPI** mode 
 - connect the usb and power on the board
 - use serial tools like minicom to capture the output from the board, 115200 8n1
