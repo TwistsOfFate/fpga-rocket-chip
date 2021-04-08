@@ -51,6 +51,8 @@ Download source files:
 
 `git clone --recursive https://github.com/cnrv/fpga-rocket-chip`
 
+`git checkout kc705`
+
 `git submodule update --init --recursive`
 
 There are several folders in the repo:
@@ -73,7 +75,7 @@ Besides, you also need to download the following repos:
 
 ## II. Hardware generation 
 
-**Vivado** version 2016.4; **Ubuntu** version 16 LTS
+**Vivado** version 2020.2; **Ubuntu** version 18.04 LTS
 
 The tutorial should work well for most version of Vivado.
 
@@ -91,7 +93,7 @@ The tutorial should work well for most version of Vivado.
 - Creat New Project 
 - Add Sources - Add Directories - choose **/verilog**
 - Add Constraints - Add Files - choose **/constraints/Board_Pin_Map.xdc**
-- Default Part - Parts - choose **xc7a100tcsg324-1** , this is the chip that nexys4ddr holds.
+- Default Part - Parts - choose **xc7k325tffg900-2** , this is the chip that KC705 holds.
 - In the **Project Manager** window, right click **chip_inst - chip_top (chip_top.v)** and set it as Top module
 - Please check if **firmware.hex** has been added as source file. It should be listed under **unknown file** category, like the screen shot:
   - ![](pics/firmware.png)
@@ -106,6 +108,7 @@ Before I output the TCL script (one of my future work),  at current stage please
 
 - Component name - clk_wiz_0
 - Clocking Options - Primitive - **PLL**
+- Input Clock Information - Input Frequency - **200**; Source - **Differential clock capable pin**
 - Output Clocks - Output Clock - **clk_out1 30.000; clk_out2 200.000**
 - Output Clocks - Enable Optional IO - check **reset and locked**
 - Output Clocks - Reset Type - **Active Low**
@@ -137,12 +140,12 @@ Before I output the TCL script (one of my future work),  at current stage please
 - Component name - axi_quad_api_0
 - AXI Interface Options - **uncheck all**
 - SPI options: Mode - **standard**; Transaction width - **8**; Frequency Ration - **2x1**; Num of Slaves - **1**
-- Check Enable Master Mode; Check **Enable FIFO** - FIFO Depth **16**; Enable STARTUP Primitive - **uncheck**
+- Check **Enable Master Mode**; Check **Enable FIFO** - FIFO Depth **16**; Enable STARTUP Primitive - **uncheck**
 
 **f) AXI Clock Converter**
 
 - Component name - axi_clock_converter_0
-- Protocol - **AXI4**; Read_Write Mode - **read write**; Addr Width - **32**; Data Width - **64**; ID Width - **4**
+- Protocol - **AXI4**; Read_Write Mode - **READ WRITE**; Addr Width - **32**; Data Width - **64**; ID Width - **4**
 - Clock Concersion Options - **Asynchronous - Yes**
 
 #### 2.1.4 DDR controller 
@@ -150,37 +153,42 @@ Before I output the TCL script (one of my future work),  at current stage please
 - [doc](https://www.xilinx.com/support/documentation/ip_documentation/mig_7series/v4_2/ds176_7Series_MIS.pdf)
 - IP Catalog - Memory Interface Generator
 - Component name - mig_7series_0
-- MIG output options - Creat Design
+- MIG output options - **Create Design**
 - Check **AXI4 Interface**
-- Pin Compatible FPGA - Select **xc7a100ti-csg324**
-- Memory Selection - **DDR2 SDRAM**
-- Options for Controller: Clock Period - **5000ps**; PHY to Controller Clock Ratio - **4:1**
-- Options for Controller: Memory Part - **MT47H64M16HR-25E**; Data Width - **16**;
+- Pin Compatible FPGA - Select **xc7k325ti-ffg900**
+- Memory Selection - **DDR3 SDRAM**
+- Options for Controller: Clock Period - **1250ps**
+- Options for Controller: Memory Type - **SODIMMs**
+- Options for Controller: Memory Part - **MT8JTF12864HZ-1G6**
 - Options for Controller: Num of Bank Machines - **4**; Ordering - **Normal**
-- AXI Parameter Options: Data Width - **64**; Arbitration Scheme - **RD_PRI_REG**; ID Width: **4**
+- AXI Parameter Options: Data Width - **64**; Arbitration Scheme - **RD_PRI_REG**; ID Width - **4**
 - Memory Options for Controller: Input Clock Period - **5000ps (200MHz)**
-- Memory Options for Controller: Burst type - **Sequential**; Output Drive Strength - **Full**
-- Memory Options for Controller: Controller Chip Select Pin - **Enable**; ODT - **50ohms**
+- Memory Options for Controller: Burst type - **Sequential**
+- Memory Options for Controller: Output Driver Impedance Control: **RZQ/7**
+- Memory Options for Controller: RTT (nominal) - On Die Termination (ODT) - **RZQ/6**
+- Memory Options for Controller: Controller Chip Select Pin - **Enable**
 - Memory Options for Controller: Memory Address Mapping Selection - **BANK/ROW/COLUMN**
-- System Clock - No Buffer; Reference Clock - **Use System Clock** (This is available only when system clock is <= 200MHz, use MIG internal PLL is higher than 200MHz)
+- System Clock - **No Buffer**; Reference Clock - **Use System Clock** (This is available only when system clock is <= 200MHz, use MIG internal PLL is higher than 200MHz)
 - System Reset Polarity - **Active HIGH**
-- Debug Signal - off; check Internal Verf; IO Power Reduction - off; XADC - off
-- Internal Termination Impedance - **50ohms**
+- Debug Signals Control - **OFF**; IO Power Reduction - **ON**; XADC Instantiation - **Enabled**
+- Check **DCI Cascade**
+- Internal Termination Impedance - **50 Ohms**
 - Pin/Bank Selection Mode - **Fixed Pin Out**
 - Pin Selection For Controller - Read XDC/UCF - select **/constraints/DDR_Pin_Map.ucf** - Validate
+- System Signals Selection - No connect for all
 - Accept
 
 ### 2.2 generating MCS
 
 - Generate BitStream
 - This may take a long time: core i7-6700, 5min for synthesis, 7min for implementation
-- Tools - Generate Memory Configuartion File
-  - Format - **MCS**; Memory Part - **s25fl128sxxxxxx0-spi**; Interface - **SPIx1**
+- Tools - Generate Memory Configuration File
+  - Format - **MCS**; Memory Part - **28f00ap30t-bpi-x16**; Interface - **BPIx16**
   - Do not forget to specify a filename and the output path
-  - Check Load bitstream files - select  **your_project_dir/.runs/impl_1/.bit**
+  - Check **Load bitstream files** - select  **your_project_dir/.runs/impl_1/chip_top.bit**
 - Then you can find a ***.mcs** file under the path you specify in the Filename Option.
-- connect your Nexys4ddr with USB cable and power it on
-- Hardware Manager - add configuration memory device - **s25fl128sxxxxxx0-spi**
+- connect your KC705 and power it on
+- Hardware Manager - add configuration memory device - **28f00ap30t-bpi-x16**
 - Hardware Window - program configuration memory device
   - select your ***.mcs** file as configuration file
   - Apply
@@ -273,13 +281,13 @@ Once you have compile your own linux kernel, vmlinux. Then it comes to the build
 - format your sdcard with fat32 **NOTICE: format the SD card with MBR instead of GUID**
 - drag your **boot.elf** into the sdcard
 - eject the sd and insert it into the SDslot on Nexys4ddr board
-- make sure your Nexys4ddr is in **QSPI-config** mode, you can check that on your wire-jumper, located on board adjacent to VGA port. 
+- make sure your KC705 is in **BPI** mode 
 - connect the usb and power on the board
 - use serial tools like minicom to capture the output from the board, 115200 8n1
 - at the very beginning you should see **FSBL** and **elf loading information** from serial, which means at least the hardware works fine.
 - Hooray~~~
 - ![](pics/minicom.png)
-- here I put a static-compiled **hello** program inside of the rootfs.cpio, you can also put your own riscv program inside. However the final boot.elf cannot larger than 16MB (because the sd_loader copies boot.elf to 0x87000000, leaving merely 2^24 Bytes to hold the image).
+- here I put a static-compiled **hello** program inside of the rootfs.cpio, you can also put your own riscv program inside. However the final boot.elf cannot be larger than 32MB (can be changed by modifying MAX_FILE_SIZE in firmware/sdload.c).
 
 ## V. Supplement 
 
@@ -287,12 +295,12 @@ Once you have compile your own linux kernel, vmlinux. Then it comes to the build
 
 - I cannot find devices in Devices Manager
   - make sure to install **xilinx cable driver** in advance, refer to [UG973](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2018_3/ug973-vivado-release-notes-install-license.pdf) in P36
-- I cannot find **.config** under linux dirctory (same situation for busybox/.config)
-  - please show hidden files, for ubuntu: File window - View - Show Hidden Files
+- I cannot find **.config** under linux directory (same situation for busybox/.config)
+  - please show hidden files, for Ubuntu: File window - View - Show Hidden Files
   - or you can use command line: `cp fpga-rocket-chip/config/linux_config <your_linux_dir>/.config` 
   - for busybox/.config: `cp fpga-rocket-chip/config/busybox_config <your_busybox_dir>/.config`
 - Want to change the device tree
-  - dts file is located at **/riscv-pk/build/temporary_dtb.dts**
+  - dts file is located at **/firmware/mem1gb.dts**
 - There is already a BRAM, **TLBootrom**, inside of the rocket-chip, why do you create another **BRAM_64K** ? 
   - the TLBootrom only has a capacitance of 4KB, which is not enough to hold a loading-elf-from-SD-to-DDR program
 - Mount SD card failed at FSBL

@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`define DDR_MASK 32'h07ffffff
+`define DDR_MASK 32'h7fff_ffff
 
 module AXIMem (
       input clock,		
@@ -49,19 +49,20 @@ module AXIMem (
       output        io_axi4_0_r_last,
       
       //----DDR pins
-      inout  [15:0] ddr_dq,
-      inout   [1:0] ddr_dqs_n,
-      inout   [1:0] ddr_dqs_p,
-      output [12:0] ddr_addr,
+      inout  [63:0] ddr_dq,
+      inout   [7:0] ddr_dqs_n,
+      inout   [7:0] ddr_dqs_p,
+      output [13:0] ddr_addr,
       output  [2:0] ddr_ba,
       output        ddr_ras_n,
       output        ddr_cas_n,
       output        ddr_we_n,
+      output        ddr_reset_n,
       output        ddr_ck_n,
       output        ddr_ck_p,
       output        ddr_cke,
       output        ddr_cs_n,
-      output  [1:0] ddr_dm,
+      output  [7:0] ddr_dm,
       output        ddr_odt
       
 //      //for debug
@@ -216,25 +217,25 @@ module AXIMem (
     mig_7series_0 DDR_ctrl(
       
       // device pins
-      .ddr2_dq        ( ddr_dq      ),
-      .ddr2_dqs_n     ( ddr_dqs_n   ),
-      .ddr2_dqs_p     ( ddr_dqs_p   ),
-      .ddr2_addr      ( ddr_addr    ),
-      .ddr2_ba        ( ddr_ba      ),
-      .ddr2_ras_n     ( ddr_ras_n   ),
-      .ddr2_cas_n     ( ddr_cas_n   ),
-      .ddr2_we_n      ( ddr_we_n    ),
-      .ddr2_ck_p      ( ddr_ck_p    ),
-      .ddr2_ck_n      ( ddr_ck_n    ),
-      .ddr2_cke       ( ddr_cke     ),
-      .ddr2_cs_n      ( ddr_cs_n    ),
-      .ddr2_dm        ( ddr_dm      ),
-      .ddr2_odt       ( ddr_odt     ),
+      .ddr3_dq        ( ddr_dq      ),
+      .ddr3_dqs_n     ( ddr_dqs_n   ),
+      .ddr3_dqs_p     ( ddr_dqs_p   ),
+      .ddr3_addr      ( ddr_addr    ),
+      .ddr3_ba        ( ddr_ba      ),
+      .ddr3_ras_n     ( ddr_ras_n   ),
+      .ddr3_cas_n     ( ddr_cas_n   ),
+      .ddr3_we_n      ( ddr_we_n    ),
+      .ddr3_reset_n   ( ddr_reset_n ),
+      .ddr3_ck_p      ( ddr_ck_p    ),
+      .ddr3_ck_n      ( ddr_ck_n    ),
+      .ddr3_cke       ( ddr_cke     ),
+      .ddr3_cs_n      ( ddr_cs_n    ),
+      .ddr3_dm        ( ddr_dm      ),
+      .ddr3_odt       ( ddr_odt     ),
 
       .sys_clk_i      ( clock200	),
       .sys_rst        ( reset    ),
 
-      .device_temp_i  ( 0           ),  // we do not need XADC just ground it       
       .app_sr_req     ( 1'b0        ),  // ddr control bits, all should be zero
       .app_ref_req    ( 1'b0        ), // 
       .app_zq_req     ( 1'b0        ),

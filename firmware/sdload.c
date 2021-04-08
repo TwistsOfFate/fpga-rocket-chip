@@ -12,10 +12,10 @@
 
 FATFS FatFs;   // Work area (file system object) for logical drive
 
-// max size of file image is 16M
-#define MAX_FILE_SIZE 0x1000000
+// max size of file image is 32M
+#define MAX_FILE_SIZE 0x2000000
 
-// size of DDR RAM (128M for NEXYS4-DDR) 
+// size of DDR RAM (1G for KC705) 
 #define DDR_SIZE 0x8000000
 
 // 4K size read burst

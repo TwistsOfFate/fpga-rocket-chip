@@ -2,37 +2,37 @@
 `define SIM_ENABLE_DDR
 module chip_top 
 ( 
-  input   clock100, 
-  input   buttonresetn,
+  input   clock200_p,
+  input   clock200_n, 
+  input   buttonreset,
   
-  output [15:0]LED,
   
   //----UART
   output  uart_TX,
   input   uart_RX,
   
   //----DDR
-  inout  [15:0] ddr_dq,
-  inout   [1:0] ddr_dqs_n,
-  inout   [1:0] ddr_dqs_p,
-  output [12:0] ddr_addr,
+  inout  [63:0] ddr_dq,
+  inout   [7:0] ddr_dqs_n,
+  inout   [7:0] ddr_dqs_p,
+  output [13:0] ddr_addr,
   output  [2:0] ddr_ba,
   output        ddr_ras_n,
   output        ddr_cas_n,
   output        ddr_we_n,
+  output        ddr_reset_n,
   output        ddr_ck_n,
   output        ddr_ck_p,
   output        ddr_cke,
   output        ddr_cs_n,
-  output  [1:0] ddr_dm,
+  output  [7:0] ddr_dm,
   output        ddr_odt,
   
   //----SD on spi
-  inout         spi_cs,
-  inout         spi_sclock,
-  inout         spi_mosi,
-  inout         spi_miso,
-  output        sd_poweroff
+  output        spi_cs,
+  output        spi_sclock,
+  output        spi_mosi,
+  inout         spi_miso
   
   // position for peris ... TBA
 );
@@ -280,10 +280,11 @@ module chip_top
   wire  pll_locked;
   assign reset = ~ pll_locked;
   clk_wiz_0 clk_gen(
-    .clk_in1(clock100),//100m
+    .clk_in1_p(clock200_p),
+    .clk_in1_n(clock200_n),
     .clk_out1(clock30),   //30m
     .clk_out2(clock200), //200m
-    .resetn(buttonresetn),
+    .resetn(~buttonreset),
     .locked(pll_locked) // we use pll locked signal as resetn for ddr ctrl.
   );
     
@@ -475,6 +476,7 @@ module chip_top
     .ddr_ras_n (ddr_ras_n),
     .ddr_cas_n (ddr_cas_n),
     .ddr_we_n (ddr_we_n),
+    .ddr_reset_n(ddr_reset_n),
     .ddr_ck_n (ddr_ck_n),
     .ddr_ck_p (ddr_ck_p),
     .ddr_cke (ddr_cke),
@@ -552,21 +554,6 @@ module chip_top
     .spi_miso(spi_miso),
     .sd_poweroff(sd_poweroff)
   );
-  
-  //////////////////////////////////debug
-  
-  assign LED[13] = uart_TX;
-  assign LED[12] = uart_RX;
-  
-  assign LED[15] = dut_reset;
-  assign LED[14] = dut_clock;
-  
-  assign LED[4] = spi_miso;
-  assign LED[3] = spi_mosi;
-  assign LED[2] = spi_sclock;
-  assign LED[1] = spi_cs;
-  assign LED[0] = sd_poweroff;    
-  //////////////////////////////////debug
   
   
   DTModule DTM ( 
