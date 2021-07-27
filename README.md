@@ -49,7 +49,7 @@ You should know the followings before continue to the next section.
 
 Download source files:
 
-`git clone --recursive https://github.com/cnrv/fpga-rocket-chip`
+`git clone --recursive https://github.com/TwistsOfFate/fpga-rocket-chip`
 
 `git checkout kc705`
 
@@ -66,7 +66,7 @@ There are several folders in the repo:
 Besides, you also need to download the following repos:
 
 - **cross compiler** - `git clone https://github.com/riscv/riscv-gnu-toolchain` 
-  - the latest one works fine (May 17 2019)
+  - the latest one works fine (April 2021)
   - install **elf-gcc and** **linux-gcc** and set **RISCV** variable in advance
 - **linux kernel** -  ` git clone https://github.com/riscv/riscv-linux` 
   - hash 8fe28cb58bcb235034b64cbbb7550a8a43fd88be , others should also work
@@ -75,9 +75,9 @@ Besides, you also need to download the following repos:
 
 ## II. Hardware generation 
 
-**Vivado** version 2020.2; **Ubuntu** version 18.04 LTS
+**Vivado** version 2020.2; **Ubuntu** version 20.04 LTS
 
-The tutorial should work well for most version of Vivado.
+The tutorial should work well for most versions of Vivado.
 
 ### 2.1 building the vivado project
 
@@ -266,7 +266,7 @@ Now we have our initramfs, **rootfs.cpio.gz**. We can build the linux kernel now
   - For your convenience, I backup a **config_linux** under the **/config** directory, you can copy it and use it to overwrite the **.config** under the linux dir
 
 - `make -jN ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- vmlinux`
-- after several  minute, there will be a **vmlinux** under the dir of riscv-linux
+- after several minutes, there will be a **vmlinux** under the dir of riscv-linux
 
 ### 3.4 build the image
 
